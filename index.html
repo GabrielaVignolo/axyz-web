@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXYZ3D — Marcos de Ruta Personalizados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:     #0a0a0a;
+      --carbon:    #111111;
+      --surface:   #1a1a1a;
+      --border:    #282828;
+      --green:     #2ecc71;
+      --green-dim: #1a7a44;
+      --red:       #e02020;
+      --white:     #f0eeea;
+      --muted:     #6a6a6a;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body:    'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,10,0.93);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 2rem;
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 0.08em; color: var(--white); text-decoration: none; }
+    .nav-logo span { color: var(--green); }
+    nav a.nav-link { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; margin-left: 1.5rem; }
+    nav a.nav-link:hover { color: var(--white); }
+
+    /* ── HERO ── */
+    .hero-wrapper { position: relative; overflow: hidden; min-height: 90vh; }
+    .route-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 1; }
+    .route-path { fill: none; stroke: var(--red); stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2000; stroke-dashoffset: 2000; animation: draw-route 4s ease forwards; }
+    .route-path.delay1 { animation-delay: 0.4s; }
+    .route-path.delay2 { animation-delay: 1.2s; stroke: #ff5555; opacity: 0.75; }
+    .route-path.delay3 { animation-delay: 2s; stroke: #cc1111; opacity: 0.55; }
+    @keyframes draw-route { to { stroke-dashoffset: 0; } }
+    .route-dot { fill: var(--red); opacity: 0; animation: pulse-dot 1s ease 3.8s forwards; }
+    @keyframes pulse-dot { 0% { opacity:0; r:3; } 50% { opacity:1; r:7; } 100% { opacity:0.8; r:4; } }
+    .hero { position: relative; z-index: 1; min-height: 90vh; display: flex; flex-direction: column; justify-content: center; padding: 5rem 2rem 4rem; max-width: 900px; margin: 0 auto; }
+    .hero-eyebrow { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green); margin-bottom: 1.2rem; }
+    .hero h1 { font-family: var(--font-display); font-size: clamp(3.5rem, 9vw, 7rem); line-height: 0.92; letter-spacing: 0.02em; margin-bottom: 1.8rem; }
+    .hero h1 em { font-style: normal; color: var(--green); }
+    .hero-sub { font-size: 1.1rem; color: var(--muted); max-width: 520px; margin-bottom: 2.5rem; font-weight: 300; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-block; background: var(--green); color: #0a0a0a; padding: 0.85rem 2rem; font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 0.1em; text-decoration: none; border: none; cursor: pointer; transition: background 0.2s, transform 0.1s; font-weight: 700; }
+    .btn:hover { background: #27b563; }
+    .btn:active { transform: scale(0.98); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); margin-left: 1rem; font-weight: 400; }
+    .btn-outline:hover { border-color: var(--white); color: var(--white); background: transparent; }
+
+    /* ── SECTIONS ── */
+    section { max-width: 960px; margin: 0 auto; padding: 5rem 2rem; }
+    .section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green); margin-bottom: 0.6rem; }
+    .section-title { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: 0.04em; line-height: 1; margin-bottom: 1rem; }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* ── PRODUCT CARDS ── */
+    .product-card { background: var(--surface); border: 1px solid var(--border); transition: border-color 0.2s; cursor: pointer; overflow: hidden; flex: 0 0 260px; width: 260px; }
+    .product-card:hover { border-color: var(--green-dim); }
+    .product-card.selected { border-color: var(--green); }
+
+    /* carrusel por categoría */
+    .cat-section { margin-top: 3rem; }
+    .cat-section:first-child { margin-top: 1.5rem; }
+    .cat-header {
+      border-left: 3px solid var(--green);
+      padding: 0.8rem 1.2rem;
+      background: var(--surface);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .cat-header-left {}
+    .cat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+    .cat-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.06em; line-height: 1; }
+    .cat-price { font-size: 0.82rem; font-weight: 700; color: var(--red); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.3rem; }
+    .cat-arrows { display: flex; gap: 0.4rem; }
+    .cat-arrow {
+      background: var(--border);
+      border: none;
+      color: var(--white);
+      font-size: 1rem;
+      width: 2rem;
+      height: 2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cat-arrow:hover { background: var(--green); color: #000; }
+
+    .carousel-wrap { position: relative; }
+    .carousel {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 0.5rem;
+    }
+    .carousel::-webkit-scrollbar { display: none; }
+
+    /* slideshow */
+    .card-slideshow { position: relative; width: 100%; aspect-ratio: 3/4; background: #111; overflow: hidden; }
+    .card-slideshow img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.4s ease; }
+    .card-slideshow img.active { opacity: 1; }
+    .slide-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.55); border: none; color: var(--white); font-size: 1.1rem; padding: 0.3rem 0.6rem; cursor: pointer; z-index: 2; transition: background 0.2s; }
+    .slide-btn:hover { background: rgba(0,0,0,0.85); }
+    .slide-btn.prev { left: 0.4rem; }
+    .slide-btn.next { right: 0.4rem; }
+    .slide-dots { position: absolute; bottom: 0.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.35rem; }
+    .slide-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: background 0.2s; }
+    .slide-dot.active { background: var(--green); }
+    .card-no-img { aspect-ratio: 3/4; background: #111; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+
+    /* imagen fija por producto */
+    .card-img-wrap { width: 100%; aspect-ratio: 3/4; background: #111; overflow: hidden; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    /* encabezado de categoría */
+    .full-width { grid-column: 1 / -1; }
+    .cat-header {
+      border-left: 3px solid var(--green);
+      padding: 0.8rem 1.2rem;
+      margin-top: 1.5rem;
+      background: var(--surface);
+    }
+    .cat-header:first-child { margin-top: 0; }
+    .cat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+    .cat-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.06em; line-height: 1; }
+    .cat-price { font-size: 0.82rem; font-weight: 700; color: var(--red); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.3rem; }
+
+    /* etiqueta nombre+precio sobre la foto */
+    .slide-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.82));
+      padding: 1.8rem 1rem 0.7rem;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .slide-label-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .slide-label-price {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--green);
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+
+    .card-body { padding: 1.4rem 1.6rem 1.6rem; }
+    .product-name { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.06em; margin-bottom: 0.35rem; }
+    .product-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem; }
+    .product-price { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); }
+    .product-select-indicator { display: none; margin-top: 0.5rem; font-size: 0.72rem; font-weight: 600; color: var(--green); letter-spacing: 0.12em; text-transform: uppercase; }
+    .product-card.selected .product-select-indicator { display: block; }
+
+    /* ── PROCESO ── */
+    .process-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; margin-top: 3rem; border: 1px solid var(--border); }
+    .step { padding: 2rem 1.5rem; border-right: 1px solid var(--border); }
+    .step:last-child { border-right: none; }
+    .step-num { font-family: var(--font-display); font-size: 3rem; color: var(--red); line-height: 1; margin-bottom: 0.6rem; }
+    .step-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .step-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── FORMULARIO ── */
+    #pedido { background: var(--carbon); max-width: 100%; padding: 5rem 2rem; }
+    #pedido .inner { max-width: 680px; margin: 0 auto; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 2.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    input, select, textarea { background: var(--surface); border: 1px solid var(--border); color: var(--white); font-family: var(--font-body); font-size: 0.95rem; padding: 0.75rem 1rem; outline: none; transition: border-color 0.2s; width: 100%; appearance: none; -webkit-appearance: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--green); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6a6a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+    textarea { resize: vertical; min-height: 110px; }
+    .form-note { font-size: 0.78rem; color: var(--muted); margin-top: 1.5rem; line-height: 1.5; }
+    .form-note strong { color: var(--white); }
+    .btn-submit { width: 100%; margin-top: 1.5rem; font-size: 1.3rem; padding: 1rem; text-align: center; }
+
+    /* ── FOOTER ── */
+    footer { border-top: 1px solid var(--border); padding: 2.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; max-width: 960px; margin: 0 auto; }
+    .footer-logo { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.06em; color: var(--muted); }
+    .footer-logo span { color: var(--green); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--white); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      nav { padding: 0.75rem 1.2rem; }
+      nav a.nav-link { margin-left: 1rem; font-size: 0.78rem; }
+      .hero { padding: 4rem 1.2rem 3rem; min-height: 80vh; }
+      section { padding: 4rem 1.2rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      .process-steps { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .step:last-child { border-bottom: none; }
+      footer { flex-direction: column; align-items: flex-start; }
+      .btn-outline { display: none; }
+      #quienes-somos > div { grid-template-columns: 1fr !important; gap: 2rem !important; }
+      #quienes-somos > div > div:last-child { border-left: none; border-top: 3px solid var(--green); padding-left: 0; padding-top: 1.5rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .route-path { animation: none; stroke-dashoffset: 0; }
+      .route-dot  { animation: none; opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:0.6rem;text-decoration:none;">
+    <img src="logo.jpg" alt="AXYZ3D" style="height:38px; width:38px; border-radius:50%; object-fit:cover; display:block; flex-shrink:0;" />
+    <span style="font-family:var(--font-display);font-size:1.8rem;letter-spacing:0.08em;color:var(--white);">AXYZ<span style="color:var(--green);">3D</span></span>
+  </a>
+  <div>
+    <a href="#productos" class="nav-link">Productos</a>
+    <a href="#quienes-somos" class="nav-link">Nosotros</a>
+    <a href="#como-funciona" class="nav-link">Cómo funciona</a>
+    <a href="#gpx-guia" class="nav-link">Descargá tu GPX</a>
+    <a href="#pedido" class="nav-link">Hacer pedido</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-wrapper">
+  <svg class="route-bg" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="opacity:0.22;">
+
+    <!-- GRUPO 1 — colina izquierda superior -->
+    <path fill="none" stroke="#2ecc71" stroke-width="1.2" d="M120,80 C160,60 220,55 270,70 C320,85 350,110 340,140 C330,170 290,185 250,180 C210,175 175,155 155,130 C135,105 130,90 120,80 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M100,65 C150,38 230,30 295,50 C360,70 395,105 380,145 C365,185 315,205 265,200 C215,195 170,170 145,140 C120,110 110,85 100,65 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M78,48 C138,14 240,5 320,30 C400,55 440,100 422,150 C404,200 344,225 280,220 C216,215 162,185 132,148 C102,111 88,78 78,48 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.7" d="M55,30 C125,-8 250,-20 345,10 C440,40 488,95 465,155 C442,215 372,245 295,240 C218,235 155,200 118,155 C81,110 65,68 55,30 Z"/>
+
+    <!-- GRUPO 2 — colina centro izquierda -->
+    <path fill="none" stroke="#ffffff" stroke-width="1.2" d="M280,320 C320,290 390,280 440,300 C490,320 510,360 495,395 C480,430 440,445 400,438 C360,431 325,408 308,375 C291,342 285,335 280,320 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="1" d="M255,305 C305,268 388,255 448,278 C508,301 533,350 515,393 C497,436 448,455 400,447 C352,439 308,412 288,372 C268,332 258,320 255,305 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.8" d="M228,288 C288,244 385,228 455,255 C525,282 555,340 534,392 C513,444 455,466 400,457 C345,448 292,416 268,369 C244,322 230,308 228,288 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.7" d="M200,270 C270,218 382,200 462,232 C542,264 578,332 553,392 C528,452 462,478 400,468 C338,458 276,420 248,366 C220,312 202,296 200,270 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.6" d="M172,252 C252,192 379,172 469,209 C559,246 600,324 572,392 C544,460 469,490 400,479 C331,468 260,424 228,363 C196,302 174,284 172,252 Z"/>
+
+    <!-- GRUPO 3 — colina derecha superior -->
+    <path fill="none" stroke="#2ecc71" stroke-width="1.2" d="M950,60 C1010,35 1090,38 1140,65 C1190,92 1205,135 1185,168 C1165,201 1120,215 1075,208 C1030,201 992,175 975,142 C958,109 948,78 950,60 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M925,42 C995,10 1095,12 1155,45 C1215,78 1233,130 1210,170 C1187,210 1135,228 1082,220 C1029,212 984,182 964,142 C944,102 932,72 925,42 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M898,22 C978,-14 1098,-14 1168,24 C1238,62 1260,124 1234,172 C1208,220 1148,242 1088,233 C1028,224 976,189 952,142 C928,95 914,58 898,22 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.6" d="M870,2 C960,-40 1100,-42 1180,2 C1260,46 1286,118 1257,174 C1228,230 1160,256 1093,246 C1026,236 968,196 940,142 C912,88 896,44 870,2 Z"/>
+
+    <!-- GRUPO 4 — colina centro grande -->
+    <path fill="none" stroke="#ffffff" stroke-width="1.3" d="M600,350 C650,310 730,295 800,315 C870,335 905,385 888,430 C871,475 820,498 768,490 C716,482 672,450 650,408 C628,366 615,365 600,350 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="1.1" d="M572,330 C632,282 725,264 806,288 C887,312 928,372 908,426 C888,480 828,507 768,498 C708,489 656,452 630,402 C604,352 588,348 572,330 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.9" d="M542,308 C612,252 718,232 810,260 C902,288 950,358 927,422 C904,486 835,516 768,506 C701,496 640,454 610,396 C580,338 560,332 542,308 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.7" d="M510,285 C590,220 710,198 814,230 C918,262 972,344 945,418 C918,492 840,526 768,515 C696,504 625,456 590,390 C555,324 528,316 510,285 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.6" d="M478,260 C568,188 702,164 818,200 C934,236 994,330 963,414 C932,498 844,536 768,524 C692,512 610,458 570,384 C530,310 496,300 478,260 Z"/>
+
+    <!-- GRUPO 5 — colina derecha baja -->
+    <path fill="none" stroke="#2ecc71" stroke-width="1.2" d="M1100,480 C1148,448 1220,442 1272,465 C1324,488 1344,535 1325,572 C1306,609 1258,625 1210,617 C1162,609 1122,580 1106,542 C1090,504 1085,495 1100,480 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M1075,460 C1132,422 1218,414 1278,440 C1338,466 1362,522 1340,566 C1318,610 1262,630 1206,621 C1150,612 1104,578 1085,534 C1066,490 1058,482 1075,460 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M1048,438 C1114,394 1214,384 1282,414 C1350,444 1379,508 1354,560 C1329,612 1264,636 1202,626 C1140,616 1086,576 1064,526 C1042,476 1030,468 1048,438 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.6" d="M1020,415 C1095,364 1210,352 1286,387 C1362,422 1396,494 1368,554 C1340,614 1266,642 1197,631 C1128,620 1067,574 1042,517 C1017,460 1002,452 1020,415 Z"/>
+
+    <!-- GRUPO 6 — colina izquierda baja -->
+    <path fill="none" stroke="#ffffff" stroke-width="1.1" d="M80,560 C118,530 182,522 230,544 C278,566 296,610 278,646 C260,682 214,698 170,690 C126,682 90,654 76,616 C62,578 68,572 80,560 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.9" d="M55,540 C102,504 178,494 234,518 C290,542 312,594 291,636 C270,678 216,698 165,689 C114,680 72,648 56,604 C40,560 44,552 55,540 Z"/>
+    <path fill="none" stroke="#ffffff" stroke-width="0.7" d="M28,518 C84,476 172,464 238,492 C304,520 330,580 305,628 C280,676 218,700 160,690 C102,680 52,642 34,591 C16,540 20,532 28,518 Z"/>
+
+    <!-- GRUPO 7 — pequeña colina centro derecha -->
+    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M820,180 C848,160 888,158 912,174 C936,190 942,218 928,238 C914,258 886,266 860,260 C834,254 814,236 808,212 C802,188 806,184 820,180 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M802,165 C836,140 884,136 914,155 C944,174 952,208 936,234 C920,260 885,272 852,265 C819,258 796,236 788,206 C780,176 782,172 802,165 Z"/>
+    <path fill="none" stroke="#2ecc71" stroke-width="0.6" d="M782,148 C822,118 878,112 914,134 C950,156 962,196 944,228 C926,260 884,275 845,268 C806,261 778,235 768,200 C758,165 760,162 782,148 Z"/>
+
+    <!-- LÍNEAS DE UNIÓN — conectan las colinas como en un mapa real -->
+    <path fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.5"
+      d="M340,140 C420,130 500,160 572,288" />
+    <path fill="none" stroke="#2ecc71" stroke-width="0.8" opacity="0.5"
+      d="M1075,208 C1000,280 920,310 905,385" />
+    <path fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.5"
+      d="M888,430 C920,450 980,468 1048,438" />
+    <path fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.5"
+      d="M230,544 C340,520 450,480 510,285" />
+
+    <!-- RUTA DE CARRERA encima — roja, se dibuja sola -->
+    <path fill="none" stroke="#e02020" stroke-width="5" opacity="0.9"
+      stroke-linecap="round" stroke-linejoin="round"
+      stroke-dasharray="2800" stroke-dashoffset="2800"
+      style="animation: draw-route 4s ease 0.8s forwards;"
+      d="M80,690 C130,640 190,590 260,548 C330,506 400,480 470,450 C540,420 610,390 670,348 C730,306 770,258 820,220 C870,182 930,162 990,172 C1050,182 1100,222 1140,262 C1180,302 1205,348 1240,375 C1275,402 1318,395 1355,368" />
+
+    <circle cx="80" cy="690" r="6" fill="#e02020" opacity="0" style="animation: pulse-dot 0.8s ease 0.6s forwards;" />
+    <circle cx="1355" cy="368" r="7" fill="#e02020" opacity="0" style="animation: pulse-dot 0.8s ease 4.9s forwards;" />
+    <circle cx="1355" cy="368" r="14" fill="none" stroke="#e02020" stroke-width="2" opacity="0" style="animation: pulse-dot 0.8s ease 5.2s forwards;" />
+
+  </svg>
+  <div class="hero">
+    <p class="hero-eyebrow">Hecho en Uruguay · Impresión 3D personalizada</p>
+    <h1>TU RUTA.<br><em>EN</em> TU<br>PARED.</h1>
+    <p class="hero-sub">Transformamos el recorrido de tu reloj en un marco 3D único. Para regalar, para colgar, para recordar para siempre.</p>
+    <div>
+      <a href="#pedido" class="btn">Hacer mi pedido</a>
+      <a href="#productos" class="btn btn-outline">Ver productos</a>
+    </div>
+  </div>
+</div>
+
+<hr class="section-divider" />
+
+<!-- PRODUCTOS -->
+<section id="productos">
+  <p class="section-label">Catálogo</p>
+  <h2 class="section-title">LO QUE HACEMOS</h2>
+  <p style="color: var(--muted); font-size: 0.9rem;">Hacé clic en el producto que te interesa para pre-seleccionarlo en el formulario.</p>
+  <p style="color: var(--muted); font-size: 0.82rem; margin-top: 0.5rem;">📌 <em>Las fotos son ejemplos de trabajos realizados. Cada marco se diseña y personaliza según tu carrera.</em></p>
+
+  <!-- MAPA CON RECORRIDO -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <div class="cat-header-left">
+        <div class="cat-label">Marcos 21×30</div>
+        <div class="cat-title">MAPA CON RECORRIDO</div>
+        <div class="cat-price">$800</div>
+      </div>
+      <div class="cat-arrows">
+        <button class="cat-arrow" onclick="scrollCat('cat1', -1)">&#8592;</button>
+        <button class="cat-arrow" onclick="scrollCat('cat1', 1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel" id="cat1">
+        <div class="product-card" onclick="selectProduct(this, 'Mapa ciudad con recorrido — $800')">
+          <div class="card-img-wrap"><img src="img_marco_1.png" alt="Mapa ciudad con recorrido" /></div>
+          <div class="card-body"><div class="product-name">MAPA CIUDAD CON RECORRIDO</div><p class="product-desc">Mapa A4 de la ciudad con tu ruta en relieve 3D superpuesta.</p><div class="product-price">$800</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Marco con recorrido — $800')">
+          <div class="card-img-wrap"><img src="img_marco_3.png" alt="Marco con recorrido" /></div>
+          <div class="card-body"><div class="product-name">MARCO CON RECORRIDO</div><p class="product-desc">Tu recorrido del GPS en relieve 3D, enmarcado con tu info de carrera.</p><div class="product-price">$800</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA CON RECORRIDO Y MEDALLERO -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <div class="cat-header-left">
+        <div class="cat-label">Marcos 21×30</div>
+        <div class="cat-title">MAPA CON RECORRIDO Y MEDALLERO</div>
+        <div class="cat-price">$1000</div>
+      </div>
+      <div class="cat-arrows">
+        <button class="cat-arrow" onclick="scrollCat('cat2', -1)">&#8592;</button>
+        <button class="cat-arrow" onclick="scrollCat('cat2', 1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel" id="cat2">
+        <div class="product-card" onclick="selectProduct(this, 'Mapa con recorrido y medallero — $1000')">
+          <div class="card-img-wrap"><img src="img_marco_2.png" alt="Mapa con recorrido y medallero" /></div>
+          <div class="card-body"><div class="product-name">MAPA CON RECORRIDO Y MEDALLERO</div><p class="product-desc">Mapa de ciudad con recorrido 3D y soporte para tu medalla.</p><div class="product-price">$1000</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Marco recorrido y medallero — $1000')">
+          <div class="card-img-wrap"><img src="img_marco_4.png" alt="Marco recorrido y medallero" /></div>
+          <div class="card-body"><div class="product-name">MARCO RECORRIDO Y MEDALLERO</div><p class="product-desc">Marco con recorrido 3D y soporte para tu medalla incluido.</p><div class="product-price">$1000</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Marco recorrido y medallero — $1000')">
+          <div class="card-img-wrap"><img src="img_marco_5.jpg" alt="Marco recorrido y medallero" /></div>
+          <div class="card-body"><div class="product-name">MARCO RECORRIDO Y MEDALLERO</div><p class="product-desc">Versión con diseño y fondo personalizado según la carrera.</p><div class="product-price">$1000</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Marco recorrido y medallero — $1000')">
+          <div class="card-img-wrap"><img src="img_marco_7.png" alt="Marco recorrido y medallero" /></div>
+          <div class="card-body"><div class="product-name">MARCO RECORRIDO Y MEDALLERO</div><p class="product-desc">Marco con recorrido 3D y soporte para tu medalla. Diseño personalizado.</p><div class="product-price">$1000</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARCOS XL -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <div class="cat-header-left">
+        <div class="cat-label">Marcos especiales</div>
+        <div class="cat-title">MARCOS XL</div>
+        <div class="cat-price">$1400</div>
+      </div>
+      <div class="cat-arrows">
+        <button class="cat-arrow" onclick="scrollCat('cat3', -1)">&#8592;</button>
+        <button class="cat-arrow" onclick="scrollCat('cat3', 1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel" id="cat3">
+        <div class="product-card" onclick="selectProduct(this, 'Recorridos Ironman — $1400')">
+          <div class="card-img-wrap"><img src="img_marco_6.png" alt="Recorridos Ironman" /></div>
+          <div class="card-body"><div class="product-name">RECORRIDOS IRONMAN</div><p class="product-desc">Marco especial con los tres recorridos de Ironman en relieve 3D.</p><div class="product-price">$1400</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Marco XL — $1400')">
+          <div class="card-img-wrap"><img src="img_marco_8.jpeg" alt="Marco XL" /></div>
+          <div class="card-body"><div class="product-name">MARCO XL</div><p class="product-desc">Marco de gran formato con diseño personalizado y recorrido en relieve 3D.</p><div class="product-price">$1400</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Marco XL — $1400')">
+          <div class="card-img-wrap"><img src="img_marco_9.jpeg" alt="Marco XL" /></div>
+          <div class="card-body"><div class="product-name">MARCO XL</div><p class="product-desc">Marco de gran formato con toda la información de tu carrera personalizada.</p><div class="product-price">$1400</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECORRIDO CON BASE -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <div class="cat-header-left">
+        <div class="cat-label">Artículo independiente</div>
+        <div class="cat-title">RECORRIDO CON BASE</div>
+        <div class="cat-price">$350</div>
+      </div>
+      <div class="cat-arrows">
+        <button class="cat-arrow" onclick="scrollCat('cat4', -1)">&#8592;</button>
+        <button class="cat-arrow" onclick="scrollCat('cat4', 1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel" id="cat4">
+        <div class="product-card" onclick="selectProduct(this, 'Recorrido con base — $350')">
+          <div class="card-img-wrap"><img src="img_base_1.jpg" alt="Recorrido con base" /></div>
+          <div class="card-body"><div class="product-name">RECORRIDO CON BASE</div><p class="product-desc">Relieve 3D topográfico con tu recorrido, montado sobre base propia.</p><div class="product-price">$350</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTÍCULOS DEPORTIVOS -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <div class="cat-header-left">
+        <div class="cat-label">Para corredores</div>
+        <div class="cat-title">ARTÍCULOS DEPORTIVOS</div>
+        <div class="cat-price">Desde $100</div>
+      </div>
+      <div class="cat-arrows">
+        <button class="cat-arrow" onclick="scrollCat('cat5', -1)">&#8592;</button>
+        <button class="cat-arrow" onclick="scrollCat('cat5', 1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel" id="cat5">
+        <div class="product-card" onclick="selectProduct(this, 'Escurridor soft flexible — $200')">
+          <div class="card-img-wrap"><img src="img_soft_flexible_1.png" alt="Escurridor soft flexible" /></div>
+          <div class="card-body"><div class="product-name">ESCURRIDOR SOFT FLEXIBLE</div><p class="product-desc">Escurridor para soft flask flexible. Plegable y fácil de guardar.</p><div class="product-price">$200</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Escurridor soft rígido — $300')">
+          <div class="card-img-wrap"><img src="img_soft_rigido_1.png" alt="Escurridor soft rígido" /></div>
+          <div class="card-body"><div class="product-name">ESCURRIDOR SOFT RÍGIDO</div><p class="product-desc">Escurridor para soft flask rígido con base perforada. Resistente y estable.</p><div class="product-price">$300</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Pastillero pack 2 unidades — $100')">
+          <div class="card-img-wrap"><img src="img_pastillero_1.png" alt="Pastillero pack 2 unidades" /></div>
+          <div class="card-body"><div class="product-name">PASTILLERO PACK 2u</div><p class="product-desc">Pastilleros compactos para llevar en carrera. Pack de 2 unidades.</p><div class="product-price">$100</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LLAVEROS -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <div class="cat-header-left">
+        <div class="cat-label">Accesorios personalizados</div>
+        <div class="cat-title">LLAVEROS PERSONALIZADOS</div>
+        <div class="cat-price">Consultá precio</div>
+      </div>
+      <div class="cat-arrows">
+        <button class="cat-arrow" onclick="scrollCat('cat6', -1)">&#8592;</button>
+        <button class="cat-arrow" onclick="scrollCat('cat6', 1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel" id="cat6">
+        <div class="product-card" onclick="selectProduct(this, 'Llavero personalizado')">
+          <div class="card-img-wrap"><img src="llavero_1.jpeg" alt="Llavero personalizado" /></div>
+          <div class="card-body"><div class="product-name">LLAVERO PERSONALIZADO</div><p class="product-desc">Llaveros 3D con diseño personalizado. Ideales para regalar en volumen.</p><div class="product-price">Consultá precio</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Llavero personalizado')">
+          <div class="card-img-wrap"><img src="llavero_2.jpeg" alt="Llavero personalizado" /></div>
+          <div class="card-body"><div class="product-name">LLAVERO PERSONALIZADO</div><p class="product-desc">Llaveros 3D con diseño personalizado. Ideales para regalar en volumen.</p><div class="product-price">Consultá precio</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+        <div class="product-card" onclick="selectProduct(this, 'Otro / No sé todavía')">
+          <div class="card-no-img">💬</div>
+          <div class="card-body"><div class="product-name">OTRO / CONSULTA</div><p class="product-desc">¿Tenés una idea? Contanos y lo evaluamos sin compromiso.</p><div class="product-price">Consultamos juntos</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- QUIÉNES SOMOS -->
+<section id="quienes-somos">
+  <p class="section-label">Quiénes somos</p>
+  <h2 class="section-title">SOBRE AXYZ</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:2rem;">
+    <div>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.8;"><strong style="color:var(--white);">En AXYZ creemos que cada desafío merece ser recordado para siempre.</strong></p>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.8;margin-top:1rem;">Transformamos recorridos, mapas, altimetrías y medallas en piezas de diseño personalizadas que permiten revivir una experiencia única una y otra vez. Cada creación representa horas de entrenamiento, esfuerzo, perseverancia y la emoción de cruzar una meta.</p>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.8;margin-top:1rem;">Utilizando diseño digital e impresión 3D de alta precisión, creamos cuadros, mapas topográficos, llaveros, medalleros y otros productos personalizados para corredores, ciclistas, triatletas y deportistas de todas las disciplinas.</p>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.8;margin-top:1rem;">Cada pieza es diseñada especialmente para quien la recibe, cuidando cada detalle para que no sea simplemente un objeto decorativo, sino un recuerdo con significado.</p>
+      <p style="color:var(--white);font-size:0.95rem;line-height:1.8;margin-top:1.5rem;font-style:italic;">Porque los logros pasan... pero las historias merecen permanecer.</p>
+    </div>
+    <div style="border-left:3px solid var(--green);padding-left:2rem;">
+      <p style="color:var(--green);font-size:0.72rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.6rem;">Nuestra visión</p>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.8;">Ser la marca referente en la creación de recuerdos deportivos personalizados, reconocida por transformar cada recorrido, carrera y desafío en una pieza de diseño única que inspire a las personas a celebrar sus logros.</p>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.8;margin-top:1rem;">Buscamos acompañar a deportistas de todo el mundo, combinando creatividad, tecnología e impresión 3D para convertir momentos irrepetibles en recuerdos que perduren toda la vida.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+<section id="como-funciona">
+  <p class="section-label">El proceso</p>
+  <h2 class="section-title">CÓMO FUNCIONA</h2>
+  <div class="process-steps">
+    <div class="step"><div class="step-num">01</div><div class="step-title">Completás el formulario</div><p class="step-text">Nos mandás tus datos y el archivo GPX de tu reloj o Strava. Te guiamos para descargarlo en la sección <a href="#gpx-guia" style="color:var(--green);text-decoration:underline;">Descargá tu GPX</a>.</p></div>
+    <div class="step"><div class="step-num">02</div><div class="step-title">Te confirmamos y cotizamos</div><p class="step-text">En menos de 24 hs te escribimos por WhatsApp o email con el precio y los detalles.</p></div>
+    <div class="step"><div class="step-num">03</div><div class="step-title">Coordinamos el pago</div><p class="step-text">Pagás por transferencia bancaria o efectivo.</p></div>
+    <div class="step"><div class="step-num">04</div><div class="step-title">Imprimimos y entregamos</div><p class="step-text">Producimos tu pieza y coordinamos envío o retiro en Montevideo.</p></div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- GPX GUIA -->
+<section id="gpx-guia">
+  <p class="section-label">Antes de pedir</p>
+  <h2 class="section-title">DESCARGÁ TU GPX</h2>
+  <p style="color:var(--muted);font-size:0.9rem;max-width:580px;">El archivo GPX es el registro de tu recorrido. Lo exportás desde tu reloj o app y nos lo mandás por email o WhatsApp. Seguí los pasos según tu dispositivo:</p>
+
+  <div class="gpx-grid">
+
+    <div class="gpx-card">
+      <div class="gpx-icon">⌚</div>
+      <div class="gpx-platform">Garmin</div>
+      <ol class="gpx-steps">
+        <li>Entrá a <strong>connect.garmin.com</strong> desde la computadora o la app Garmin Connect.</li>
+        <li>Ir a <strong>Actividades</strong> y elegí la carrera que querés.</li>
+        <li>Hacé clic en el ícono de engranaje (⚙) o los tres puntos.</li>
+        <li>Seleccioná <strong>Exportar original</strong> o <strong>Exportar GPX</strong>.</li>
+        <li>¡Listo! Guardá el archivo y mandánoslo.</li>
+      </ol>
+    </div>
+
+    <div class="gpx-card">
+      <div class="gpx-icon">🟠</div>
+      <div class="gpx-platform">Strava</div>
+      <ol class="gpx-steps">
+        <li>Abrí <strong>strava.com</strong> en el navegador (no funciona desde la app).</li>
+        <li>Entrá a la actividad que querés exportar.</li>
+        <li>Hacé clic en los tres puntos <strong>(···)</strong> arriba a la derecha.</li>
+        <li>Elegí <strong>Exportar archivo GPX</strong>.</li>
+        <li>¡Listo! Guardá el archivo y mandánoslo.</li>
+      </ol>
+    </div>
+
+    <div class="gpx-card">
+      <div class="gpx-icon">🍎</div>
+      <div class="gpx-platform">Apple Watch</div>
+      <ol class="gpx-steps">
+        <li>Descargá la app gratuita <strong>HealthFit</strong> en tu iPhone.</li>
+        <li>Abrila y elegí la actividad desde el historial.</li>
+        <li>Tocá <strong>Exportar</strong> y seleccioná formato <strong>GPX</strong>.</li>
+        <li>Compartí el archivo por email o WhatsApp directamente.</li>
+        <li>¿Necesitás ayuda? Escribinos y te guiamos paso a paso.</li>
+      </ol>
+    </div>
+
+    <div class="gpx-card">
+      <div class="gpx-icon">⭐</div>
+      <div class="gpx-platform">Amazfit</div>
+      <ol class="gpx-steps">
+        <li>Abrí la app <strong>Zepp</strong> en tu celular.</li>
+        <li>Tocá la actividad que querés desde el historial.</li>
+        <li>Entrá al detalle de la actividad y buscá el ícono de compartir.</li>
+        <li>Elegí <strong>Exportar datos de ruta</strong> o <strong>GPX</strong>.</li>
+        <li>Guardá el archivo y mandánoslo por WhatsApp o email.</li>
+      </ol>
+    </div>
+
+  </div>
+
+  <div class="gpx-nota">
+    💬 <strong>¿Tu reloj no está en la lista o no encontrás el archivo?</strong> Escribinos por <a href="https://instagram.com/axyz3d.uy" target="_blank" style="color:var(--green);">Instagram</a> o al <a href="#pedido" style="color:var(--green);">formulario</a> y te ayudamos sin costo.
+  </div>
+</section>
+
+<style>
+  .gpx-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+  }
+  .gpx-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.6rem;
+  }
+  .gpx-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+  .gpx-platform {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    color: var(--green);
+    margin-bottom: 1rem;
+  }
+  .gpx-steps {
+    list-style: none;
+    counter-reset: gpx-counter;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .gpx-steps li {
+    counter-increment: gpx-counter;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.45;
+    padding-left: 1.6rem;
+    position: relative;
+  }
+  .gpx-steps li::before {
+    content: counter(gpx-counter);
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 0.75rem;
+    top: 0.05rem;
+  }
+  .gpx-steps li strong { color: var(--white); }
+  .gpx-nota {
+    margin-top: 2rem;
+    padding: 1.2rem 1.5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .gpx-nota strong { color: var(--white); }
+</style>
+
+<hr class="section-divider" />
+
+<!-- FORMULARIO -->
+<div id="pedido">
+  <div class="inner">
+    <p class="section-label">Hacé tu pedido</p>
+    <h2 class="section-title">EMPEZÁ ACÁ</h2>
+    <p style="color: var(--muted); font-size: 0.88rem; margin-top: 0.6rem;">Completá el formulario y te contactamos en menos de 24 hs para confirmar todo.</p>
+    <form id="orderForm" action="https://api.web3forms.com/submit" method="POST">
+      <input type="hidden" name="access_key" value="f2d47904-bc82-4a43-8fc1-5f9f0c0d2967" />
+      <input type="hidden" name="subject" id="form-subject" value="Nuevo pedido AXYZ3D" />
+      <input type="hidden" name="from_name" value="Web AXYZ3D" />
+      <input type="checkbox" name="botcheck" style="display:none;" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nombre">Tu nombre</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej: Ana García" required />
+        </div>
+        <div class="form-group">
+          <label for="whatsapp">WhatsApp</label>
+          <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ej: 099 123 456" required />
+        </div>
+        <div class="form-group full">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="tu@email.com" />
+        </div>
+        <div class="form-group full">
+          <label for="producto">Producto de interés</label>
+          <select id="producto" name="producto" required>
+            <option value="" disabled selected>Seleccioná un producto…</option>
+            <optgroup label="── Marco de ruta ──">
+              <option value="Mapa ciudad con recorrido — $800">Mapa ciudad con recorrido — $800</option>
+              <option value="Mapa con recorrido y medallero — $800">Mapa con recorrido y medallero — $800</option>
+              <option value="Marco con recorrido — $800">Marco con recorrido — $800</option>
+              <option value="Marco recorrido y medallero — $1000">Marco recorrido y medallero — $1000</option>
+              <option value="Recorridos Ironman — $1400">Recorridos Ironman — $1400</option>
+            </optgroup>
+            <optgroup label="── Otros productos ──">
+              <option value="Recorrido con base — $350">Recorrido con base — $350</option>
+              <option value="Escurridor soft flexible — $200">Escurridor soft flexible — $200</option>
+              <option value="Escurridor soft rígido — $300">Escurridor soft rígido — $300</option>
+              <option value="Pastillero pack 2 unidades — $100">Pastillero pack 2 unidades — $100</option>
+              <option value="Llavero personalizado">Llavero personalizado</option>
+              <option value="Objeto decorativo / tendencia">Deco & tendencia</option>
+              <option value="Otro / No sé todavía">Otro / Consulta libre</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="carrera">Carrera o evento (si aplica)</label>
+          <input type="text" id="carrera" name="carrera" placeholder="Ej: Maratón de Montevideo 2025, 42k" />
+        </div>
+        <div class="form-group full">
+          <label for="cantidad">Cantidad de piezas</label>
+          <select id="cantidad" name="cantidad">
+            <option value="1">1 pieza</option>
+            <option value="2">2 piezas</option>
+            <option value="3-5">3 a 5 piezas</option>
+            <option value="6-10">6 a 10 piezas (volumen)</option>
+            <option value="más de 10">Más de 10 piezas (evento/empresa)</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="mensaje">Detalles, preguntas o ideas</label>
+          <textarea id="mensaje" name="mensaje" placeholder="Contanos qué tenés en mente, colores que preferís, si es regalo, fecha que necesitás, etc."></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="gpx">¿Tenés el archivo GPX?</label>
+          <select id="gpx" name="gpx">
+            <option value="Sí, lo tengo y puedo enviarlo">Sí, lo tengo y puedo enviarlo</option>
+            <option value="Tengo acceso a Strava/Garmin y puedo exportarlo">Tengo acceso a Strava/Garmin y puedo exportarlo</option>
+            <option value="No sé cómo obtenerlo, necesito ayuda">No sé cómo obtenerlo, necesito ayuda</option>
+            <option value="No aplica para mi producto">No aplica para mi producto</option>
+          </select>
+        </div>
+      </div>
+      <p class="form-note">
+        Completá el formulario y hacé clic en enviar. El pedido nos llega directo a nosotros — no necesitás abrir ningún programa de email.<br/>
+        También podés escribirnos por <strong>WhatsApp: <a href="https://wa.me/59891056706" target="_blank" style="color:var(--green);">091 056 706</a></strong> o por <strong>Instagram: @axyz3d.uy</strong>
+      </p>
+      <button type="submit" class="btn btn-submit" onclick="actualizarAsunto()">ENVIAR PEDIDO →</button>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AXYZ<span>3D</span></div>
+  <div class="footer-links">
+    <a href="https://wa.me/59891056706" target="_blank">📱 091 056 706</a>
+    <a href="https://instagram.com/axyz3d.uy" target="_blank">@axyz3d.uy</a>
+    <a href="mailto:axyz3duy@gmail.com">axyz3duy@gmail.com</a>
+    <a href="#pedido">Hacer pedido</a>
+  </div>
+</footer>
+
+<script>
+  // ── SLIDESHOW ──
+  const slideshows = {};
+
+  function initSlideshows() {
+    document.querySelectorAll('.card-slideshow').forEach(ss => {
+      const id = ss.id;
+      const imgs = ss.querySelectorAll('img');
+      if (imgs.length <= 1) return;
+      slideshows[id] = 0;
+      const dotsContainer = document.getElementById('dots-' + id);
+      imgs.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+        dotsContainer.appendChild(dot);
+      });
+    });
+  }
+
+  function updateLabel(id, index) {
+    const ss = document.getElementById(id);
+    if (!ss) return;
+    const raw = ss.getAttribute('data-products');
+    if (!raw) return;
+    const products = JSON.parse(raw);
+    if (!products[index]) return;
+    const nameEl  = document.getElementById('label-name-' + id);
+    const priceEl = document.getElementById('label-price-' + id);
+    const cardPriceEl = document.getElementById('price-' + id);
+    if (nameEl)  nameEl.textContent  = products[index].name;
+    if (priceEl) priceEl.textContent = products[index].price;
+    if (cardPriceEl) cardPriceEl.textContent = products[index].price;
+  }
+
+  function slide(e, id, dir) {
+    e.stopPropagation();
+    const ss = document.getElementById(id);
+    const imgs = ss.querySelectorAll('img');
+    const dots = ss.querySelectorAll('.slide-dot');
+    let current = slideshows[id] || 0;
+    imgs[current].classList.remove('active');
+    if (dots[current]) dots[current].classList.remove('active');
+    current = (current + dir + imgs.length) % imgs.length;
+    imgs[current].classList.add('active');
+    if (dots[current]) dots[current].classList.add('active');
+    slideshows[id] = current;
+    updateLabel(id, current);
+  }
+
+  initSlideshows();
+
+  // ── SELECCIÓN POR FOTO ACTIVA ──
+  function selectProductFromSlide(ssId) {
+    const ss = document.getElementById(ssId);
+    const card = ss.closest('.product-card');
+    document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    const raw = ss.getAttribute('data-products');
+    const sel = document.getElementById('producto');
+
+    if (raw) {
+      const products = JSON.parse(raw);
+      const current  = slideshows[ssId] || 0;
+      const product  = products[current];
+      // buscar opción que contenga el nombre del producto
+      let found = false;
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === product.value) { sel.selectedIndex = i; found = true; break; }
+      }
+      // si no existe todavía, agregar la opción dinámicamente
+      if (!found) {
+        const opt = document.createElement('option');
+        opt.value = product.value;
+        opt.textContent = product.name + ' — ' + product.price;
+        sel.appendChild(opt);
+        sel.value = product.value;
+      }
+    }
+
+    setTimeout(() => {
+      document.getElementById('pedido').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+
+  // mantener selectProduct para cards sin slideshow dinámico
+  function selectProduct(card, productName) {
+    document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    const sel = document.getElementById('producto');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === productName) { sel.selectedIndex = i; break; }
+    }
+    setTimeout(() => {
+      document.getElementById('pedido').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+
+  // ── SCROLL CARRUSEL ──
+  function scrollCat(id, dir) {
+    const carousel = document.getElementById(id);
+    carousel.scrollBy({ left: dir * 280, behavior: 'smooth' });
+  }
+
+  // ── ACTUALIZAR ASUNTO ANTES DE ENVIAR ──
+  function actualizarAsunto() {
+    const nombre  = document.getElementById('nombre').value.trim();
+    const producto = document.getElementById('producto').value;
+    const asunto = `Nuevo pedido AXYZ3D — ${producto} — ${nombre}`;
+    document.getElementById('form-subject').value = asunto;
+  }
+</script>
+
+</body>
+</html>
