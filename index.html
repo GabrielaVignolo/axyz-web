@@ -125,8 +125,11 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
       padding-bottom: 0.5rem;
+      cursor: grab;
     }
     .carousel::-webkit-scrollbar { display: none; }
+    .carousel.dragging { scroll-behavior: auto; cursor: grabbing; user-select: none; }
+    .carousel.dragging .product-card { pointer-events: none; }
 
     /* slideshow */
     .card-slideshow { position: relative; width: 100%; aspect-ratio: 3/4; background: #111; overflow: hidden; }
@@ -258,6 +261,7 @@
     <a href="#quienes-somos" class="nav-link">Nosotros</a>
     <a href="#como-funciona" class="nav-link">Cómo funciona</a>
     <a href="#gpx-guia" class="nav-link">Descargá tu GPX</a>
+    <a href="#contacto" class="nav-link">Contacto</a>
     <a href="#pedido" class="nav-link">Hacer pedido</a>
   </div>
 </nav>
@@ -722,7 +726,7 @@
 </div>
 
 <!-- FOOTER -->
-<footer>
+<footer id="contacto">
   <div class="footer-logo">AXYZ<span>3D</span></div>
   <div class="footer-links">
     <a href="https://wa.me/59891056706" target="_blank">📱 091 056 706</a>
@@ -835,6 +839,41 @@
     const carousel = document.getElementById(id);
     carousel.scrollBy({ left: dir * 280, behavior: 'smooth' });
   }
+
+  // ── ARRASTRAR CARRUSEL CON EL MOUSE ──
+  function makeCarouselDraggable(carousel) {
+    let isDown = false;
+    let moved = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    carousel.addEventListener('mousedown', (e) => {
+      isDown = true;
+      moved = false;
+      startX = e.pageX;
+      startScroll = carousel.scrollLeft;
+      carousel.classList.add('dragging');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      const dx = e.pageX - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      carousel.scrollLeft = startScroll - dx;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!isDown) return;
+      isDown = false;
+      carousel.classList.remove('dragging');
+    });
+
+    carousel.addEventListener('click', (e) => {
+      if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+    }, true);
+  }
+
+  document.querySelectorAll('.carousel').forEach(makeCarouselDraggable);
 
   // ── ACTUALIZAR ASUNTO ANTES DE ENVIAR ──
   function actualizarAsunto() {
