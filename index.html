@@ -25,7 +25,9 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--black);
+      background-color: var(--black);
+      background-image: url("topo-bg.svg");
+      background-repeat: repeat;
       color: var(--white);
       font-family: var(--font-body);
       font-size: 16px;
@@ -264,59 +266,7 @@
 <div class="hero-wrapper">
   <svg class="route-bg" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="opacity:0.22;">
 
-    <!-- GRUPO 1 — colina izquierda superior -->
-    <path fill="none" stroke="#2ecc71" stroke-width="1.2" d="M120,80 C160,60 220,55 270,70 C320,85 350,110 340,140 C330,170 290,185 250,180 C210,175 175,155 155,130 C135,105 130,90 120,80 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M100,65 C150,38 230,30 295,50 C360,70 395,105 380,145 C365,185 315,205 265,200 C215,195 170,170 145,140 C120,110 110,85 100,65 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M78,48 C138,14 240,5 320,30 C400,55 440,100 422,150 C404,200 344,225 280,220 C216,215 162,185 132,148 C102,111 88,78 78,48 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.7" d="M55,30 C125,-8 250,-20 345,10 C440,40 488,95 465,155 C442,215 372,245 295,240 C218,235 155,200 118,155 C81,110 65,68 55,30 Z"/>
-
-    <!-- GRUPO 2 — colina centro izquierda -->
-    <path fill="none" stroke="#ffffff" stroke-width="1.2" d="M280,320 C320,290 390,280 440,300 C490,320 510,360 495,395 C480,430 440,445 400,438 C360,431 325,408 308,375 C291,342 285,335 280,320 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="1" d="M255,305 C305,268 388,255 448,278 C508,301 533,350 515,393 C497,436 448,455 400,447 C352,439 308,412 288,372 C268,332 258,320 255,305 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.8" d="M228,288 C288,244 385,228 455,255 C525,282 555,340 534,392 C513,444 455,466 400,457 C345,448 292,416 268,369 C244,322 230,308 228,288 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.7" d="M200,270 C270,218 382,200 462,232 C542,264 578,332 553,392 C528,452 462,478 400,468 C338,458 276,420 248,366 C220,312 202,296 200,270 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.6" d="M172,252 C252,192 379,172 469,209 C559,246 600,324 572,392 C544,460 469,490 400,479 C331,468 260,424 228,363 C196,302 174,284 172,252 Z"/>
-
-    <!-- GRUPO 3 — colina derecha superior -->
-    <path fill="none" stroke="#2ecc71" stroke-width="1.2" d="M950,60 C1010,35 1090,38 1140,65 C1190,92 1205,135 1185,168 C1165,201 1120,215 1075,208 C1030,201 992,175 975,142 C958,109 948,78 950,60 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M925,42 C995,10 1095,12 1155,45 C1215,78 1233,130 1210,170 C1187,210 1135,228 1082,220 C1029,212 984,182 964,142 C944,102 932,72 925,42 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M898,22 C978,-14 1098,-14 1168,24 C1238,62 1260,124 1234,172 C1208,220 1148,242 1088,233 C1028,224 976,189 952,142 C928,95 914,58 898,22 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.6" d="M870,2 C960,-40 1100,-42 1180,2 C1260,46 1286,118 1257,174 C1228,230 1160,256 1093,246 C1026,236 968,196 940,142 C912,88 896,44 870,2 Z"/>
-
-    <!-- GRUPO 4 — colina centro grande -->
-    <path fill="none" stroke="#ffffff" stroke-width="1.3" d="M600,350 C650,310 730,295 800,315 C870,335 905,385 888,430 C871,475 820,498 768,490 C716,482 672,450 650,408 C628,366 615,365 600,350 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="1.1" d="M572,330 C632,282 725,264 806,288 C887,312 928,372 908,426 C888,480 828,507 768,498 C708,489 656,452 630,402 C604,352 588,348 572,330 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.9" d="M542,308 C612,252 718,232 810,260 C902,288 950,358 927,422 C904,486 835,516 768,506 C701,496 640,454 610,396 C580,338 560,332 542,308 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.7" d="M510,285 C590,220 710,198 814,230 C918,262 972,344 945,418 C918,492 840,526 768,515 C696,504 625,456 590,390 C555,324 528,316 510,285 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.6" d="M478,260 C568,188 702,164 818,200 C934,236 994,330 963,414 C932,498 844,536 768,524 C692,512 610,458 570,384 C530,310 496,300 478,260 Z"/>
-
-    <!-- GRUPO 5 — colina derecha baja -->
-    <path fill="none" stroke="#2ecc71" stroke-width="1.2" d="M1100,480 C1148,448 1220,442 1272,465 C1324,488 1344,535 1325,572 C1306,609 1258,625 1210,617 C1162,609 1122,580 1106,542 C1090,504 1085,495 1100,480 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M1075,460 C1132,422 1218,414 1278,440 C1338,466 1362,522 1340,566 C1318,610 1262,630 1206,621 C1150,612 1104,578 1085,534 C1066,490 1058,482 1075,460 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M1048,438 C1114,394 1214,384 1282,414 C1350,444 1379,508 1354,560 C1329,612 1264,636 1202,626 C1140,616 1086,576 1064,526 C1042,476 1030,468 1048,438 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.6" d="M1020,415 C1095,364 1210,352 1286,387 C1362,422 1396,494 1368,554 C1340,614 1266,642 1197,631 C1128,620 1067,574 1042,517 C1017,460 1002,452 1020,415 Z"/>
-
-    <!-- GRUPO 6 — colina izquierda baja -->
-    <path fill="none" stroke="#ffffff" stroke-width="1.1" d="M80,560 C118,530 182,522 230,544 C278,566 296,610 278,646 C260,682 214,698 170,690 C126,682 90,654 76,616 C62,578 68,572 80,560 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.9" d="M55,540 C102,504 178,494 234,518 C290,542 312,594 291,636 C270,678 216,698 165,689 C114,680 72,648 56,604 C40,560 44,552 55,540 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-width="0.7" d="M28,518 C84,476 172,464 238,492 C304,520 330,580 305,628 C280,676 218,700 160,690 C102,680 52,642 34,591 C16,540 20,532 28,518 Z"/>
-
-    <!-- GRUPO 7 — pequeña colina centro derecha -->
-    <path fill="none" stroke="#2ecc71" stroke-width="1" d="M820,180 C848,160 888,158 912,174 C936,190 942,218 928,238 C914,258 886,266 860,260 C834,254 814,236 808,212 C802,188 806,184 820,180 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.8" d="M802,165 C836,140 884,136 914,155 C944,174 952,208 936,234 C920,260 885,272 852,265 C819,258 796,236 788,206 C780,176 782,172 802,165 Z"/>
-    <path fill="none" stroke="#2ecc71" stroke-width="0.6" d="M782,148 C822,118 878,112 914,134 C950,156 962,196 944,228 C926,260 884,275 845,268 C806,261 778,235 768,200 C758,165 760,162 782,148 Z"/>
-
-    <!-- LÍNEAS DE UNIÓN — conectan las colinas como en un mapa real -->
-    <path fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.5"
-      d="M340,140 C420,130 500,160 572,288" />
-    <path fill="none" stroke="#2ecc71" stroke-width="0.8" opacity="0.5"
-      d="M1075,208 C1000,280 920,310 905,385" />
-    <path fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.5"
-      d="M888,430 C920,450 980,468 1048,438" />
-    <path fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.5"
-      d="M230,544 C340,520 450,480 510,285" />
-
-    <!-- RUTA DE CARRERA encima — roja, se dibuja sola -->
+    <!-- RUTA DE CARRERA — roja, se dibuja sola -->
     <path fill="none" stroke="#e02020" stroke-width="5" opacity="0.9"
       stroke-linecap="round" stroke-linejoin="round"
       stroke-dasharray="2800" stroke-dashoffset="2800"
