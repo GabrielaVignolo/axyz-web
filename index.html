@@ -100,22 +100,6 @@
     .cat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
     .cat-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 0.06em; line-height: 1; }
     .cat-price { font-size: 0.82rem; font-weight: 700; color: var(--red); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.3rem; }
-    .cat-arrows { display: flex; gap: 0.4rem; }
-    .cat-arrow {
-      background: var(--border);
-      border: none;
-      color: var(--white);
-      font-size: 1rem;
-      width: 2rem;
-      height: 2rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .cat-arrow:hover { background: var(--green); color: #000; }
-
     .carousel-wrap { position: relative; }
     .carousel {
       display: flex;
@@ -310,10 +294,6 @@
         <div class="cat-title">MAPA CON RECORRIDO</div>
         <div class="cat-price">$800</div>
       </div>
-      <div class="cat-arrows">
-        <button class="cat-arrow" onclick="scrollCat('cat1', -1)">&#8592;</button>
-        <button class="cat-arrow" onclick="scrollCat('cat1', 1)">&#8594;</button>
-      </div>
     </div>
     <div class="carousel-wrap">
       <div class="carousel" id="cat1">
@@ -336,10 +316,6 @@
         <div class="cat-label">Marcos 21×30</div>
         <div class="cat-title">MAPA CON RECORRIDO Y MEDALLERO</div>
         <div class="cat-price">$1000</div>
-      </div>
-      <div class="cat-arrows">
-        <button class="cat-arrow" onclick="scrollCat('cat2', -1)">&#8592;</button>
-        <button class="cat-arrow" onclick="scrollCat('cat2', 1)">&#8594;</button>
       </div>
     </div>
     <div class="carousel-wrap">
@@ -372,10 +348,6 @@
         <div class="cat-title">MARCOS XL</div>
         <div class="cat-price">$1400</div>
       </div>
-      <div class="cat-arrows">
-        <button class="cat-arrow" onclick="scrollCat('cat3', -1)">&#8592;</button>
-        <button class="cat-arrow" onclick="scrollCat('cat3', 1)">&#8594;</button>
-      </div>
     </div>
     <div class="carousel-wrap">
       <div class="carousel" id="cat3">
@@ -403,10 +375,6 @@
         <div class="cat-title">RECORRIDO CON BASE</div>
         <div class="cat-price">$350</div>
       </div>
-      <div class="cat-arrows">
-        <button class="cat-arrow" onclick="scrollCat('cat4', -1)">&#8592;</button>
-        <button class="cat-arrow" onclick="scrollCat('cat4', 1)">&#8594;</button>
-      </div>
     </div>
     <div class="carousel-wrap">
       <div class="carousel" id="cat4">
@@ -425,10 +393,6 @@
         <div class="cat-label">Para corredores</div>
         <div class="cat-title">ARTÍCULOS DEPORTIVOS</div>
         <div class="cat-price">Desde $100</div>
-      </div>
-      <div class="cat-arrows">
-        <button class="cat-arrow" onclick="scrollCat('cat5', -1)">&#8592;</button>
-        <button class="cat-arrow" onclick="scrollCat('cat5', 1)">&#8594;</button>
       </div>
     </div>
     <div class="carousel-wrap">
@@ -456,10 +420,6 @@
         <div class="cat-label">Accesorios personalizados</div>
         <div class="cat-title">LLAVEROS PERSONALIZADOS</div>
         <div class="cat-price">Consultá precio</div>
-      </div>
-      <div class="cat-arrows">
-        <button class="cat-arrow" onclick="scrollCat('cat6', -1)">&#8592;</button>
-        <button class="cat-arrow" onclick="scrollCat('cat6', 1)">&#8594;</button>
       </div>
     </div>
     <div class="carousel-wrap">
@@ -832,12 +792,6 @@
     setTimeout(() => {
       document.getElementById('pedido').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 300);
-  }
-
-  // ── SCROLL CARRUSEL ──
-  function scrollCat(id, dir) {
-    const carousel = document.getElementById(id);
-    carousel.scrollBy({ left: dir * 280, behavior: 'smooth' });
   }
 
   // ── ARRASTRAR CARRUSEL CON EL MOUSE ──
