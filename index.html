@@ -829,6 +829,39 @@
 
   document.querySelectorAll('.carousel').forEach(makeCarouselDraggable);
 
+  // ── DESLIZAR SOLO AL PASAR EL MOUSE CERCA DEL BORDE ──
+  function makeCarouselHoverScroll(carousel) {
+    let hoverDir = 0;
+    let rafId = null;
+
+    function step() {
+      if (hoverDir !== 0 && !carousel.classList.contains('dragging')) {
+        carousel.scrollLeft += hoverDir * 6;
+      }
+      rafId = requestAnimationFrame(step);
+    }
+
+    carousel.addEventListener('mouseenter', () => {
+      if (!rafId) rafId = requestAnimationFrame(step);
+    });
+
+    carousel.addEventListener('mousemove', (e) => {
+      const rect = carousel.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const zone = Math.max(50, rect.width * 0.18);
+      if (x > rect.width - zone) hoverDir = 1;
+      else if (x < zone) hoverDir = -1;
+      else hoverDir = 0;
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+      hoverDir = 0;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    });
+  }
+
+  document.querySelectorAll('.carousel').forEach(makeCarouselHoverScroll);
+
   // ── ACTUALIZAR ASUNTO ANTES DE ENVIAR ──
   function actualizarAsunto() {
     const nombre  = document.getElementById('nombre').value.trim();
