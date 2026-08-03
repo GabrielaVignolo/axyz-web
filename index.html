@@ -131,6 +131,7 @@
     /* imagen fija por producto */
     .card-img-wrap { width: 100%; aspect-ratio: 3/4; background: #111; overflow: hidden; }
     .card-img-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .carousel img { -webkit-user-drag: none; user-drag: none; user-select: none; -webkit-user-select: none; }
 
     /* encabezado de categoría */
     .full-width { grid-column: 1 / -1; }
@@ -808,6 +809,8 @@
       startScroll = carousel.scrollLeft;
       carousel.classList.add('dragging');
     });
+
+    carousel.addEventListener('dragstart', (e) => { e.preventDefault(); });
 
     window.addEventListener('mousemove', (e) => {
       if (!isDown) return;
