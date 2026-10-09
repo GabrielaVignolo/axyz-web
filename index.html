@@ -199,6 +199,9 @@
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6a6a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
     textarea { resize: vertical; min-height: 110px; }
     .form-note { font-size: 0.78rem; color: var(--muted); margin-top: 1.5rem; line-height: 1.5; }
+    .form-status { margin-top: 1rem; font-size: 0.9rem; line-height: 1.5; display: none; }
+    .form-status.ok { display: block; color: var(--green); }
+    .form-status.error { display: block; color: var(--red); }
     .form-note strong { color: var(--white); }
     .btn-submit { width: 100%; margin-top: 1.5rem; font-size: 1.3rem; padding: 1rem; text-align: center; }
 
@@ -673,7 +676,7 @@
       <input type="checkbox" name="botcheck" style="display:none;" />
       <div class="inv-options">
         <label>
-          <input type="radio" name="producto" value="Pórtico medallero 25×25 — $1900" required />
+          <input type="radio" name="producto" value="Pórtico medallero 25×25 — $1900" />
           <div class="product-card">
             <div class="card-img-wrap"><img src="img_invictus_portico.jpg" alt="Pórtico medallero Invictus Trail" /></div>
             <div class="card-body"><div class="product-name">PÓRTICO MEDALLERO 25×25</div><p class="product-desc">Exhibidor de medalla con foto de tu carrera, datos del recorrido y base personalizada.</p><div class="product-price">$1900</div><div class="product-select-indicator">✓ Seleccionado</div></div>
@@ -717,7 +720,8 @@
       <p class="form-note">
         El pedido nos llega directo a nosotros. También podés escribirnos por <strong>WhatsApp: <a href="https://wa.me/59891056706" target="_blank" style="color:var(--green);">091 056 706</a></strong> o por <strong>Instagram: @axyz3d.uy</strong>
       </p>
-      <button type="submit" class="btn btn-submit" onclick="actualizarAsuntoInvictus()">ENVIAR PEDIDO INVICTUS →</button>
+      <button type="submit" class="btn btn-submit">ENVIAR PEDIDO INVICTUS →</button>
+      <p class="form-status" id="inv-status"></p>
     </form>
   </div>
 </div>
@@ -802,7 +806,8 @@
         Completá el formulario y hacé clic en enviar. El pedido nos llega directo a nosotros — no necesitás abrir ningún programa de email.<br/>
         También podés escribirnos por <strong>WhatsApp: <a href="https://wa.me/59891056706" target="_blank" style="color:var(--green);">091 056 706</a></strong> o por <strong>Instagram: @axyz3d.uy</strong>
       </p>
-      <button type="submit" class="btn btn-submit" onclick="actualizarAsunto()">ENVIAR PEDIDO →</button>
+      <button type="submit" class="btn btn-submit">ENVIAR PEDIDO →</button>
+      <p class="form-status" id="order-status"></p>
     </form>
   </div>
 </div>
@@ -1010,6 +1015,56 @@
     const asunto = `Nuevo pedido AXYZ3D — ${producto} — ${nombre}`;
     document.getElementById('form-subject').value = asunto;
   }
+
+  // ── ENVÍO DE PEDIDOS: se queda en la página y muestra si llegó o no ──
+  function mostrarEstado(el, tipo, texto) {
+    el.className = 'form-status ' + tipo;
+    el.textContent = texto;
+  }
+
+  async function enviarPedido(e, form, statusEl, antesDeEnviar) {
+    e.preventDefault();
+    if (antesDeEnviar && antesDeEnviar() === false) return;
+    const boton = form.querySelector('button[type="submit"]');
+    const textoBoton = boton.textContent;
+    boton.disabled = true;
+    boton.textContent = 'ENVIANDO…';
+    try {
+      const resp = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok && data.success !== false) {
+        form.reset();
+        mostrarEstado(statusEl, 'ok', '✓ ¡Pedido enviado! Te contactamos en menos de 24 hs.');
+      } else {
+        throw new Error(data.message || ('Error ' + resp.status));
+      }
+    } catch (err) {
+      mostrarEstado(statusEl, 'error', 'No se pudo enviar el pedido (' + err.message + '). Escribinos por WhatsApp al 091 056 706.');
+    } finally {
+      boton.disabled = false;
+      boton.textContent = textoBoton;
+    }
+  }
+
+  document.getElementById('orderForm').addEventListener('submit', e => {
+    enviarPedido(e, e.target, document.getElementById('order-status'), actualizarAsunto);
+  });
+
+  document.getElementById('invictusForm').addEventListener('submit', e => {
+    const statusEl = document.getElementById('inv-status');
+    enviarPedido(e, e.target, statusEl, () => {
+      if (!e.target.querySelector('input[name="producto"]:checked')) {
+        mostrarEstado(statusEl, 'error', 'Elegí el Pórtico o el Cuadro antes de enviar.');
+        document.querySelector('.inv-options').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+      actualizarAsuntoInvictus();
+    });
+  });
 </script>
 
 </body>
