@@ -202,6 +202,16 @@
     .form-note strong { color: var(--white); }
     .btn-submit { width: 100%; margin-top: 1.5rem; font-size: 1.3rem; padding: 1rem; text-align: center; }
 
+    /* ── PEDIDOS INVICTUS (solo visible entrando por #invictus) ── */
+    #invictus { display: none; background: var(--carbon); max-width: 100%; padding: 5rem 2rem; scroll-margin-top: 4rem; }
+    #invictus.visible { display: block; }
+    #invictus .inner { max-width: 680px; margin: 0 auto; }
+    .inv-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 2rem; }
+    .inv-options .product-card { width: auto; }
+    .inv-options input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+    .inv-options input[type="radio"]:checked + .product-card { border-color: var(--green); }
+    .inv-options input[type="radio"]:checked + .product-card .product-select-indicator { display: block; }
+
     /* ── FOOTER ── */
     footer { border-top: 1px solid var(--border); padding: 2.5rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; max-width: 960px; margin: 0 auto; }
     .footer-logo { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.06em; color: var(--muted); }
@@ -218,6 +228,7 @@
       section { padding: 4rem 1.2rem; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: 1; }
+      .inv-options { grid-template-columns: 1fr; }
       .process-steps { grid-template-columns: 1fr; }
       .step { border-right: none; border-bottom: 1px solid var(--border); }
       .step:last-child { border-bottom: none; }
@@ -648,6 +659,69 @@
 
 <hr class="section-divider" />
 
+<!-- PEDIDOS INVICTUS (link directo: index.html#invictus) -->
+<div id="invictus">
+  <div class="inner">
+    <p class="section-label">Pedidos Invictus</p>
+    <h2 class="section-title">INVICTUS</h2>
+    <p style="color: var(--muted); font-size: 0.88rem; margin-top: 0.6rem;">Elegí tu producto, completá tus datos y te contactamos en menos de 24 hs para confirmar todo.</p>
+    <form id="invictusForm" action="https://api.web3forms.com/submit" method="POST">
+      <input type="hidden" name="access_key" value="f2d47904-bc82-4a43-8fc1-5f9f0c0d2967" />
+      <input type="hidden" name="subject" id="inv-subject" value="Nuevo pedido Invictus — AXYZ3D" />
+      <input type="hidden" name="from_name" value="Web AXYZ3D — Invictus" />
+      <input type="hidden" name="carrera" value="Invictus" />
+      <input type="checkbox" name="botcheck" style="display:none;" />
+      <div class="inv-options">
+        <label>
+          <input type="radio" name="producto" value="Pórtico medallero 25×25 — $1800" required />
+          <div class="product-card">
+            <div class="card-img-wrap"><img src="img_medallero_1.jpeg" alt="Pórtico medallero" /></div>
+            <div class="card-body"><div class="product-name">PÓRTICO MEDALLERO 25×25</div><p class="product-desc">Exhibidor de medalla con foto de tu carrera, datos del recorrido y base personalizada.</p><div class="product-price">$1800</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+          </div>
+        </label>
+        <label>
+          <input type="radio" name="producto" value="Cuadro con medallero — $1000" />
+          <div class="product-card">
+            <div class="card-img-wrap"><img src="img_marco_4.png" alt="Cuadro con medallero" /></div>
+            <div class="card-body"><div class="product-name">CUADRO CON MEDALLERO</div><p class="product-desc">Marco con recorrido 3D y soporte para tu medalla incluido.</p><div class="product-price">$1000</div><div class="product-select-indicator">✓ Seleccionado</div></div>
+          </div>
+        </label>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="inv-nombre">Tu nombre</label>
+          <input type="text" id="inv-nombre" name="nombre" placeholder="Ej: Ana García" required />
+        </div>
+        <div class="form-group">
+          <label for="inv-whatsapp">WhatsApp</label>
+          <input type="tel" id="inv-whatsapp" name="whatsapp" placeholder="Ej: 099 123 456" required />
+        </div>
+        <div class="form-group full">
+          <label for="inv-email">Email</label>
+          <input type="email" id="inv-email" name="email" placeholder="tu@email.com" />
+        </div>
+        <div class="form-group full">
+          <label for="inv-cantidad">Cantidad de piezas</label>
+          <select id="inv-cantidad" name="cantidad">
+            <option value="1">1 pieza</option>
+            <option value="2">2 piezas</option>
+            <option value="3-5">3 a 5 piezas</option>
+            <option value="más de 5">Más de 5 piezas</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="inv-mensaje">Detalles (distancia, tiempo, foto, etc.)</label>
+          <textarea id="inv-mensaje" name="mensaje" placeholder="Ej: corrí los 21k, quiero la foto de la llegada, lo necesito para tal fecha…"></textarea>
+        </div>
+      </div>
+      <p class="form-note">
+        El pedido nos llega directo a nosotros. También podés escribirnos por <strong>WhatsApp: <a href="https://wa.me/59891056706" target="_blank" style="color:var(--green);">091 056 706</a></strong> o por <strong>Instagram: @axyz3d.uy</strong>
+      </p>
+      <button type="submit" class="btn btn-submit" onclick="actualizarAsuntoInvictus()">ENVIAR PEDIDO INVICTUS →</button>
+    </form>
+  </div>
+</div>
+
 <!-- FORMULARIO -->
 <div id="pedido">
   <div class="inner">
@@ -911,6 +985,23 @@
   }
 
   document.querySelectorAll('.carousel').forEach(makeCarouselHoverScroll);
+
+  // ── SECCIÓN INVICTUS: se muestra solo al entrar con el link #invictus ──
+  function mostrarInvictus() {
+    if (location.hash !== '#invictus') return;
+    const sec = document.getElementById('invictus');
+    sec.classList.add('visible');
+    sec.scrollIntoView({ block: 'start' });
+  }
+  mostrarInvictus();
+  window.addEventListener('hashchange', mostrarInvictus);
+
+  function actualizarAsuntoInvictus() {
+    const nombre = document.getElementById('inv-nombre').value.trim();
+    const elegido = document.querySelector('#invictusForm input[name="producto"]:checked');
+    const producto = elegido ? elegido.value : '';
+    document.getElementById('inv-subject').value = `Nuevo pedido Invictus — ${producto} — ${nombre}`;
+  }
 
   // ── ACTUALIZAR ASUNTO ANTES DE ENVIAR ──
   function actualizarAsunto() {
